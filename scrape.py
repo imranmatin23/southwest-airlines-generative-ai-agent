@@ -2,6 +2,7 @@
 Tutorial: https://github.com/Erik-Debye/SWA-Scraper/blob/main/javascript%20modules/scraper.js
 
 NOTE: Does not assume multiple pages of flights!
+NOTE: Web Scraping buggy when get redirected to booking page (index.html) rather than select flights page (select-flights.html)!
 """
 
 import asyncio
