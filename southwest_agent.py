@@ -1,5 +1,4 @@
 import boto3
-from datetime import date
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_community.chat_models import BedrockChat
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
@@ -27,48 +26,37 @@ MODEL_KWARGS =  {
     "stop_sequences": ["\n\nHuman"],
 }
 
+# Southwest API URL
+SOUTHWEST_API_URL = "http://127.0.0.1"
+
 # ------------------------------------------------------------------------
 # LangChain
 
 @tool
-def search_southwest_flights(
-    departure_date: str,
-    origination: str,
-    destination: str,
-    passenger_count: int,
-    adult_count: int
-    ) -> str:
+def search_southwest_flights(event: str) -> str:
     """Search Southwest Airlines for flights on the departure date \
     between the origination airport and the destination airport \
     for the number of passengers and the number of adults.
 
-    departure_date: str --> The date of the flight in the format YYYY-MM-DD.
-
-    origination: str --> The origination airport 3-letter code. Examples: SAN, LAX, SFO
-
-    destination: str --> The destination airport 3-letter code. Examples: DAL, PHX, LGA
-
-    passenger_count: int --> The number of passengers.
-
+    event: str --> The event in the format of a JSON String with the following keys: \
+    departure_date: str --> The date of the flight in the format yyyy-mm-dd. \
+    origination: str --> The origination airport 3-letter code. Examples: SAN, LAX, SFO. \
+    destination: str --> The destination airport 3-letter code. Examples: DAL, PHX, LGA. \
+    passenger_count: int --> The number of passengers. \
     adult_count: int --> The number of adults.
     """
+    data = json.loads(event)
     response = requests.post(
-        "http://127.0.0.1",
-        json={
-            "departure_date": departure_date,
-            "origination": origination,
-            "destination": destination,
-            "passenger_count": passenger_count,
-            "adult_count": adult_count
-        }
+        SOUTHWEST_API_URL,
+        json=data
     )
-    return json.dumps(response.json()['message'])
+    return response.json()['message']
 
 def initialize_tools():
     search_southwest_flights_tool = Tool(
         name="SearchSouthwestFlightsTool", 
         func=search_southwest_flights, 
-        description="Useful for searching for flights on Southwest Airlines"
+        description='Use this tool with a JSON-encoded string argument like "{{"departure_date": "yyyy-mm-dd", "origination": "XXX", "destination": "YYY", "passenger_count": 1, "adult_count": 1}}"  when you need to search for flights on Southwest Airlines',
     )
 
     return [
