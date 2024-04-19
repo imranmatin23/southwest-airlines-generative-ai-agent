@@ -254,6 +254,12 @@ async def extract_html(url):
     # Go to the URL
     await page.goto(url)
 
+    # Press the Search Button on the booking page
+    if page.url != url:
+        await page.waitForSelector('button[id="form-mixin--submit-button"]')
+        link = await page.querySelector('button[id="form-mixin--submit-button"]')
+        await link.click()
+
     # Extract the HTML
     html = await page.content()
     
