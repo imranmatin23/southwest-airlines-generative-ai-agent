@@ -8,14 +8,12 @@ TODO
 
 ## How it Works
 
-When you ask the Southwest Airlines Generative AI Agent a question like `Hello can you please find me flights from San Diego to Dallas on April 22nd, 2024 for 1 adult passenger?` it will perform the following steps:
+It is powered by Streamlit (UI), Amazon Bedrock - Claude 3 Sonnet (Cloud), pyppeteer (Web Scraping), Flask (Web API) and LangChain (LLM Framework). When you ask the Southwest Airlines Generative AI Agent a question like `Hello can you please find me flights from San Diego to Dallas on April 22nd, 2024 for 1 adult passenger?` it will perform the following steps:
 
 1. It will process the input text and identify the correct `Tool` to use (in this case the Search Southwest Flights Tool).
 2. It will use the `Tool` by formatting the input parameters to the tool and then invoking it. In this case the input format is a JSON encoded string and the `Tool` is an API request to a Flask Backend server.
 3. The Flask API is executed and the Southwest Airlines Flight page is scraped, parsed and the results are returned as a JSON-encoded string.
 4. The Agent then processes this returned JSON-encoded string and formulates a response.
-
-It is powered by Streamlit, Amazon Bedrock (Claude 3 Sonnet), pyppeteer, Flask and LangChain.
 
 ## How to Run the Program
 
@@ -45,6 +43,7 @@ curl -H 'Content-Type: application/json' \
 ## Bugs
 
 1. Sometimes the scraping process fails as the script is detected as a bot. There isn't an easy workaround for this right now.
+2. Implement this with OpenAI as Claude is not available to non-enterprise users.
 
 ## Product Vision
 
