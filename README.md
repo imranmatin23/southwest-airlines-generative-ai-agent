@@ -4,7 +4,7 @@ A Generative AI Agent that is able to obtain Southwest Airlines flight informati
 
 ## Product Demo
 
-TODO
+https://github.com/imranmatin23/southwest-airlines-generative-ai-agent/assets/22042385/14c0c8c2-065c-40ae-89fb-f4e0470ef945
 
 ## How it Works
 
