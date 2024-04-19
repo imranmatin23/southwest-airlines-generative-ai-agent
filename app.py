@@ -4,6 +4,9 @@ from scrape import main, FlightsEncoder
 import logging
 import json
 
+# Set DEBUG Flag
+DEBUG = True
+
 # Initial setup
 app = Flask(__name__)
 CORS(app)
@@ -27,7 +30,7 @@ def index():
 
     # Search for the Flights
     app.logger.info(f'Searching for flights...')
-    flights = main(data, debug=True)
+    flights = main(data, debug=DEBUG)
     app.logger.info(f'Flights:\n\n{flights}')
 
     return jsonify(
@@ -36,4 +39,4 @@ def index():
     )
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=80)
+    app.run(debug=DEBUG, host='0.0.0.0', port=80)

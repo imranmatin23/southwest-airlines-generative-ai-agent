@@ -9,13 +9,11 @@ from langchain_core.runnables import RunnableConfig
 from langchain.memory import ConversationBufferMemory
 from langchain.tools import tool
 from langchain.agents import Tool
+import requests
 import json
 
 # ------------------------------------------------------------------------
 # Constants
-
-# Harcoded Employee Metadata 
-EMPLOYEE_METADATA = { "agent_name": "Example Agent", "employee_class": "F", "employee_id": "112662604" }
 
 # Bedrock model id
 MODEL_ID = "anthropic.claude-3-sonnet-20240229-v1:0"
@@ -33,51 +31,48 @@ MODEL_KWARGS =  {
 # LangChain
 
 @tool
-def list_southwest_flights_url(date, origination_airport_code, destination_airport_code, ):
-    """Returns the Southwest Flights URL for the input paramters.
+def search_southwest_flights(
+    departure_date: str,
+    origination: str,
+    destination: str,
+    passenger_count: int,
+    adult_count: int
+    ) -> str:
+    """Search Southwest Airlines for flights on the departure date \
+    between the origination airport and the destination airport \
+    for the number of passengers and the number of adults.
 
-    date: str --> The date of the flight in the format 2021-11-30.
+    departure_date: str --> The date of the flight in the format YYYY-MM-DD.
 
-    origination_airport_code: str --> The origin airport 3-letter code. SAN, LAX, SFO
+    origination: str --> The origination airport 3-letter code. Examples: SAN, LAX, SFO
 
-    destination_airport_code: str --> The destination airport 3-letter code. DAL, PHX, LGA
+    destination: str --> The destination airport 3-letter code. Examples: DAL, PHX, LGA
+
+    passenger_count: int --> The number of passengers.
+
+    adult_count: int --> The number of adults.
     """
-    import scrape
-    url = scrape.get_southwest_flights_url(
-       date,
-        origination_airport_code,
-        destination_airport_code,
-        1,
-        1
+    response = requests.post(
+        "http://127.0.0.1",
+        json={
+            "departure_date": departure_date,
+            "origination": origination,
+            "destination": destination,
+            "passenger_count": passenger_count,
+            "adult_count": adult_count
+        }
     )
-    return url
-
-@tool
-def curr_date(text):
-    """Returns todays date, use this for any \
-    questions related to knowing todays date. \
-    The input should always be an empty string, \
-    and this function will always return todays \
-    date - any date math should occur \
-    outside this function."""
-    return str(date.today())
+    return json.dumps(response.json()['message'])
 
 def initialize_tools():
-    date_tool = Tool(
-        name="DateTool", 
-        func=curr_date, 
-        description="Useful for when you need to answer what the current date is"
-    )
-
-    southwest_list_flights_url_tool = Tool(
-        name="SouthwestListFlightsURL Tool", 
-        func=list_southwest_flights_url, 
-        description="Useful for generating the URL that lists flights on Southwest"
+    search_southwest_flights_tool = Tool(
+        name="SearchSouthwestFlightsTool", 
+        func=search_southwest_flights, 
+        description="Useful for searching for flights on Southwest Airlines"
     )
 
     return [
-        date_tool, 
-        southwest_list_flights_url_tool
+        search_southwest_flights_tool
     ]
 
 def initialize_bedrock_runtime():
@@ -229,10 +224,9 @@ if user_input := st.chat_input("Message"):
         cfg = RunnableConfig()
         cfg["callbacks"] = [st_cb]
         chat_history = memory.buffer_as_messages
-        input_metadata = json.dumps(EMPLOYEE_METADATA)
         response = agent_executor.invoke(
             input={
-                "input": f"{user_input} | {input_metadata}",
+                "input": f"{user_input}",
                 "chat_history": chat_history,             
             },
             config=cfg
