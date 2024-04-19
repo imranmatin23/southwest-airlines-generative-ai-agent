@@ -182,10 +182,6 @@ st.set_page_config(page_title="Southwest Generative AI Agent Demo", page_icon=":
 st.title("Southwest Generative AI Agent Demo")
 st.caption("This is a demo of a Generative AI Assistant that can use Tools to interact with Southwest Airlines.")
 
-# Initialize the session state for steps 
-if "steps" not in st.session_state.keys():
-    st.session_state.steps = {}
-
 # Display current chat messages
 for message in streamlit_memory.messages:
     with st.chat_message(message.type):
@@ -200,16 +196,11 @@ if user_input := st.chat_input("Message"):
     config = {"configurable": {"session_id": "any"}}
 
     with st.chat_message("assistant"):
-        st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
-        cfg = RunnableConfig()
-        cfg["callbacks"] = [st_cb]
         chat_history = memory.buffer_as_messages
         response = agent_executor.invoke(
             input={
                 "input": f"{user_input}",
                 "chat_history": chat_history,             
             },
-            config=cfg
         )
         st.write(response["output"])
-        st.session_state.steps[str(len(streamlit_memory.messages) - 1)] = response["intermediate_steps"]
