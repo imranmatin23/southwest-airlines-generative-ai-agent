@@ -56,7 +56,11 @@ def initialize_tools():
     search_southwest_flights_tool = Tool(
         name="SearchSouthwestFlightsTool", 
         func=search_southwest_flights, 
-        description='Use this tool with a JSON-encoded string argument like "{{"departure_date": "yyyy-mm-dd", "origination": "XXX", "destination": "YYY", "passenger_count": 1, "adult_count": 1}}"  when you need to search for flights on Southwest Airlines',
+        description="""
+        Use this tool with a JSON-encoded string argument like \
+        "{{"departure_date": "yyyy-mm-dd", "origination": "XXX", "destination": "YYY", "passenger_count": 1, "adult_count": 1}}" \
+        when you need to search for flights on Southwest Airlines. The input will always be a JSON encoded string with those arguments.
+        """,
     )
 
     return [
@@ -95,6 +99,7 @@ def initialize_memory(streamlit_memory):
 def intialize_prompt():
     system = '''You are a Southwest Airlines customer support agent. You help customers find flights and book them.
     Your goal is to generate an answer to the employee's message in a friendly, customer support like tone.
+    All tool inputs are in the format of a JSON string.
 
     Do not use any tools if you can answer the employee's latest message without them.
     
