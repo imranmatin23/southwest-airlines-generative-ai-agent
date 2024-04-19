@@ -11,6 +11,7 @@ from pyppeteer_stealth import stealth
 from pyppeteer import launch
 from bs4 import BeautifulSoup
 from random_user_agent.user_agent import UserAgent
+import json
 
 # Set the Debug Flag
 DEBUG = True
@@ -64,6 +65,13 @@ class Flights():
             output += str(flight)
 
         return output
+
+class FlightsEncoder(json.JSONEncoder):
+        """
+        JSON Encoder Class for the Flights Class.
+        """
+        def default(self, o):
+            return o.__dict__
 
 class Flight():
     """
@@ -216,6 +224,13 @@ class Flight():
 
         return output
 
+class FlightEncoder(json.JSONEncoder):
+        """
+        JSON Encoder Class for the Flight Class.
+        """
+        def default(self, o):
+            return o.__dict__
+
 def parse_html(flights, html):
     """
     Parse the HTML.
@@ -327,9 +342,6 @@ def main(event, debug):
     
     # Parse the HTML to extract the flight information
     parse_html(flights, html)
-    
-    # Return the flights
-    print(flights)
 
     return flights
 
@@ -341,5 +353,5 @@ if __name__ == '__main__':
         "passenger_count": 1,
         "adult_count": 1
     }
-
-    main(event, DEBUG)
+    flights = main(event, DEBUG)
+    print(flights)
