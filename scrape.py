@@ -12,6 +12,8 @@ from pyppeteer import launch
 from bs4 import BeautifulSoup
 from random_user_agent.user_agent import UserAgent
 
+# Set the Debug Flag
+DEBUG = True
 class Flights():
     """
     A collection of flights. This class is useful for aggregate data analysis.
@@ -47,7 +49,7 @@ class Flights():
         """
         Print the flights.
         """
-        output = ""
+        output = "\n\n"
 
         output += f"Departure Date: {self.departure_date}\n"
         output += f"Origination Airport: {self.origination_airport}\n"
@@ -250,7 +252,7 @@ async def extract_html(url):
 
     # Launch the Browser    
     browser = await launch(
-        headless=True,
+        headless=(not DEBUG),
         args=[
             '--start-maximized',
             f'--user-agent={random_user_agent}',
@@ -299,7 +301,8 @@ def construct_url(event):
     url = f"https://www.southwest.com/air/booking/select-depart.html?adultPassengersCount={passenger_count}&adultsCount={adult_count}&departureDate={departure_date}&departureTimeOfDay=ALL_DAY&destinationAirportCode={destination}&fareType=USD&from={origination}&int=HOMEQBOMAIR&originationAirportCode={origination}&passengerType=ADULT&reset=true&returnDate=&returnTimeOfDay=ALL_DAY&to={destination}&tripType=oneway"
     return url
 
-def main(event):
+def main(event, debug):
+    print(f"Debug Mode On: {debug}")
     # Initialize the flights object
     flights = Flights(
         event['departure_date'],
@@ -313,13 +316,22 @@ def main(event):
     url = construct_url(event)
 
     # Extract the HTML
-    html = asyncio.get_event_loop().run_until_complete(extract_html(url))
+    if debug:
+        filename = "debug.html"
+        print(f"Reading HTML from local file {filename}...")
+        f = open(filename)
+        html = f.read()
+        f.close()
+    else:
+        html = asyncio.get_event_loop().run_until_complete(extract_html(url))
     
     # Parse the HTML to extract the flight information
     parse_html(flights, html)
     
     # Return the flights
     print(flights)
+
+    return flights
 
 if __name__ == '__main__':
     event = {
@@ -330,4 +342,4 @@ if __name__ == '__main__':
         "adult_count": 1
     }
 
-    main(event)
+    main(event, DEBUG)
