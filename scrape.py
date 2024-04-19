@@ -35,7 +35,12 @@ class Flights():
         """
         Compute the cheapest flight.
         """
-        return min([min(flight.prices) for flight in self.flights])
+        prices = []
+        for flight in self.flights:
+            for item in flight.prices_and_seats_left:
+                prices.append(item[1])
+
+        return min(prices)
 
     def __str__(self):
         """
@@ -86,8 +91,7 @@ class Flight():
         self.departure_time = self.parse_departure_time(html)
         self.arrival_time = self.parse_arrival_time(html)
         self.duration = self.parse_duration(html)
-        self.prices = self.parse_prices(html)
-        self.seats_left = self.parse_seats_left(html)
+        self.prices_and_seats_left = self.parse_prices_and_seats_left(html)
 
     def parse_flight_number(self, html):
         """
@@ -122,7 +126,9 @@ class Flight():
         Parse whether the flight changes planes.
         """
         if html.find('div', {'class': 'select-detail--number-of-stops'}).find('div', {'class': 'select-detail--change-planes'}) is not None:
-            return html.find('div', {'class': 'select-detail--number-of-stops'}).find('div', {'class': 'select-detail--change-planes'}).text
+            text = html.find('div', {'class': 'select-detail--number-of-stops'}).find('div', {'class': 'select-detail--change-planes'}).text
+            text = text.replace("Change planes ", "")
+            return text
         return "N/A"
  
     def parse_departure_time(self, html):
@@ -147,38 +153,39 @@ class Flight():
         """
         return html.find('div', {'class': 'select-detail--flight-duration'}).text
     
-    def parse_prices(self, html):
+    def parse_prices_and_seats_left(self, html):
         """
-        Parse the prices.
+        Parse the prices and seats_left.
         Array Indicies: [Business Select, Anytime, Wanna Get Away Plus, Wanna Get Away]
+        Output Format: [[fare_type, price, seats_left]]
         """
-        prices = []
+        # Store the fare type, price, and seats_left
+        prices_and_seats_left = []
 
-        for data_test in ['fare-button--business-select', 'fare-button--anytime', 'fare-button--wanna-get-away-plus', 'fare-button--wanna-get-away']:
+        for fare_type, data_test in zip(
+            ["Business Select", "Anytime", "Wanna Get Away Plus", "Wanna Get Away"],
+            ['fare-button--business-select', 'fare-button--anytime', 'fare-button--wanna-get-away-plus', 'fare-button--wanna-get-away']
+        ):
+            # Get the price
             if html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "swa-g-screen-reader-only"}) is not None:
                 text = html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "swa-g-screen-reader-only"}).text
                 text = text.replace(" Dollars", "")
-                prices.append("$" + text)
+                price = "$" + text
             else:
-                prices.append("Unavailable")
+                price = "Unavailable"
 
-        return prices
-
-    def parse_seats_left(self, html):
-        """
-        Parse the seats left.
-
-        Array Indicies: [Business Select, Anytime, Wanna Get Away Plus, Wanna Get Away]
-        """
-        seats_left = []
-
-        for data_test in ['fare-button--business-select', 'fare-button--anytime', 'fare-button--wanna-get-away-plus', 'fare-button--wanna-get-away']:
+            # Get the seats left
             if html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "seats-left-indicator-text"}) is not None:
-                seats_left.append(html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "seats-left-indicator-text"}).text)
+                seats_left = html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "seats-left-indicator-text"}).text
+            elif price == "Unavailable":
+                seats_left = "0"
             else:
-                seats_left.append("N/A")
+                seats_left = "5+ left"
 
-        return seats_left
+            # Append the price and seats_left
+            prices_and_seats_left.append([fare_type, price, seats_left])
+
+        return prices_and_seats_left
     
     def __str__(self):
         """
@@ -198,9 +205,9 @@ class Flight():
         )
             
         output += f"Prices:\n"
-        for fare_type, price, seats_left in zip(["Business Select", "Anytime", "Wanna Get Away Plus", "Wanna Get Away"], self.prices, self.seats_left):
+        for item in self.prices_and_seats_left:
             output += (
-                f"  - {fare_type}: {price} ({seats_left})\n"
+                f"  - {item[0]}: {item[1]} ({item[2]})\n"
             )
         output += f"\n\n"
 
