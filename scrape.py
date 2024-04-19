@@ -13,8 +13,6 @@ from bs4 import BeautifulSoup
 from random_user_agent.user_agent import UserAgent
 import json
 
-# Set the Debug Flag
-DEBUG = True
 class Flights():
     """
     A collection of flights. This class is useful for aggregate data analysis.
@@ -353,5 +351,5 @@ if __name__ == '__main__':
         "passenger_count": 1,
         "adult_count": 1
     }
-    flights = main(event, DEBUG)
+    flights = main(event, True)
     print(flights)
