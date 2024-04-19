@@ -11,6 +11,7 @@ from pyppeteer_stealth import stealth
 from pyppeteer import launch
 from bs4 import BeautifulSoup
 from random_user_agent.user_agent import UserAgent
+from random_user_agent.params import SoftwareName, OperatingSystem
 import json
 
 class Flights():
@@ -260,7 +261,11 @@ async def extract_html(url, debug):
     Extract the HTML from the URL.
     """
     # Get Random User Agent String.
-    user_agent_rotator = UserAgent()
+    user_agent_rotator = UserAgent(
+        software_names=[SoftwareName.CHROME.value],
+        operating_systems=[OperatingSystem.MAC_OS_X.value, OperatingSystem.LINUX.value],
+        limit=100
+    )
     random_user_agent = user_agent_rotator.get_random_user_agent()
 
     # Launch the Browser    
@@ -292,7 +297,12 @@ async def extract_html(url, debug):
         await page.waitForSelector('button[id="form-mixin--submit-button"]', {'visible': True})
         button = await page.querySelector('button[id="form-mixin--submit-button"]')
         await button.click()
-        await page.waitForNavigation({"timeout": 5000})
+        try:
+            await page.waitForNavigation({"timeout": 5000})
+        except TimeoutError as e:
+            # Close the browser window
+            await browser.close()
+            raise e
 
     # Extract the HTML
     html = await page.content()
