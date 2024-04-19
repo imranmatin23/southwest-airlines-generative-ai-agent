@@ -8,7 +8,7 @@ TODO
 
 ## How it Works
 
-It is powered by Streamlit (UI), Amazon Bedrock - Claude 3 Sonnet (Cloud), pyppeteer (Web Scraping), Flask (Web API) and LangChain (LLM Framework). When you ask the Southwest Airlines Generative AI Agent a question like `Hello can you please find me flights from San Diego to Dallas on April 22nd, 2024 for 1 adult passenger?` it will perform the following steps:
+It is powered by Streamlit (UI), Amazon Bedrock - Claude 3 Sonnet (LLM) or OpenAI - GPT3.5 Turbo (LLM), pyppeteer (Web Scraping), Flask (Web API) and LangChain (LLM Framework). When you ask the Southwest Airlines Generative AI Agent a question like `Hello can you please find me flights from San Diego to Dallas on April 22nd, 2024 for 1 adult passenger?` it will perform the following steps:
 
 1. It will process the input text and identify the correct `Tool` to use (in this case the Search Southwest Flights Tool).
 2. It will use the `Tool` by formatting the input parameters to the tool and then invoking it. In this case the input format is a JSON encoded string and the `Tool` is an API request to a Flask Backend server.
@@ -18,6 +18,9 @@ It is powered by Streamlit (UI), Amazon Bedrock - Claude 3 Sonnet (Cloud), pyppe
 ## How to Run the Program
 
 ```bash
+# Optional: Set your OpenAI Key
+export OPENAI_API_KEY="XXX"
+
 # Set up the virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
