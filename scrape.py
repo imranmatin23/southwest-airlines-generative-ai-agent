@@ -81,6 +81,7 @@ class Flight():
         self.adult_count = adult_count
         self.flight_number = self.parse_flight_number(html)
         self.fastest = self.parse_fastest(html)
+        self.low_fare = self.parse_low_fare(html)
         self.number_of_stops = self.parse_number_of_stops(html)
         self.change_planes = self.parse_change_planes(html)
         self.departure_time = self.parse_departure_time(html)
@@ -93,8 +94,14 @@ class Flight():
         """
         Parse the flight number.
         """
-        return html.find_all("div")[0].find_all("span")[0].text
+        return html.find("div", {'class': 'select-detail--indicators'}).find_all("span")[0].text
     
+    def parse_low_fare(self, html):
+        """
+        Parse if the flight is label as Low Fare.
+        """
+        return html.find("div", {'class': 'select-detail--indicators'}).find('span', {'class': 'select-detail--lowest-fare-badge'}) is not None
+
     def parse_fastest(self, html):
         """
         Parse if the flight is label as fastest.
@@ -114,19 +121,18 @@ class Flight():
         if html.find('div', {'class': 'select-detail--number-of-stops'}).find('div', {'class': 'select-detail--change-planes'}) is not None:
             return html.find('div', {'class': 'select-detail--number-of-stops'}).find('div', {'class': 'select-detail--change-planes'}).text
         return "N/A"
-    
-    
+ 
     def parse_departure_time(self, html):
         """
         Parse the departure time.
         """
-        return html.find_all("div")[3].find_all("span")[0].text
+        return html.find('div', {'data-test': "select-detail--origination-time"}).find('span', {"class": "time--value"}).text
 
     def parse_arrival_time(self, html):
         """
         Parse the arrival time.
         """
-        return html.find_all("div")[4].find_all("span")[0].text
+        return html.find('div', {'data-test': "select-detail--destination-time"}).find('span', {"class": "time--value"}).text
     
     def parse_duration(self, html):
         """
@@ -174,6 +180,7 @@ class Flight():
         output += (
             f"############### Flight Number: {self.flight_number} ############### \n" +
             f"Fastest: {self.fastest}\n" +
+            f"Low Fare: {self.fastest}\n" +
             f"Number of Stops: {self.number_of_stops}\n" +
             f"Change Planes: {self.change_planes}\n" +
             f"Departure Time: {self.departure_time}\n" +
