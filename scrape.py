@@ -107,13 +107,16 @@ class Flight():
         """
         Parse the number of stops.
         """
-        return html.find_all("div")[5].text
+        return html.find('div', {'class': 'select-detail--number-of-stops'}).find('div', {'class': 'flight-stops-badge select-detail--flight-stops-badge'}).text
     
     def parse_change_planes(self, html):
         """
         Parse whether the flight changes planes.
         """
-        return "TODO"
+        if html.find('div', {'class': 'select-detail--number-of-stops'}).find('div', {'class': 'select-detail--change-planes'}) is not None:
+            return html.find('div', {'class': 'select-detail--number-of-stops'}).find('div', {'class': 'select-detail--change-planes'}).text
+        return "N/A"
+    
     
     def parse_departure_time(self, html):
         """
@@ -138,20 +141,15 @@ class Flight():
         Parse the prices.
         Array Indicies: [Business Select, Anytime, Wanna Get Away Plus, Wanna Get Away]
         """
-        return [
-            0, 0, 0, 0
-        ]
-        # business_select_fare = html.find_all("div")[8].find('div', {"data-test": "fare-button--business-select"}).find('span', {"class": "swa-g-screen-reader-only"}).text
-        # anytime_fare = html.find_all("div")[8].find('div', {"data-test": "fare-button--anytime"}).find('span', {"class": "swa-g-screen-reader-only"}).text
-        # wanna_get_away_plus_fare = html.find_all("div")[8].find('div', {"data-test": "fare-button--wanna-get-away-plus"}).find('span', {"class": "swa-g-screen-reader-only"}).text
-        # wanna_get_away_fare = html.find_all("div")[8].find('div', {"data-test": "fare-button--wanna-get-away"}).find('span', {"class": "swa-g-screen-reader-only"}).text
+        prices = []
 
-        # return [
-        #     business_select_fare,
-        #     anytime_fare,
-        #     wanna_get_away_plus_fare,
-        #     wanna_get_away_fare
-        # ]
+        for data_test in ['fare-button--business-select', 'fare-button--anytime', 'fare-button--wanna-get-away-plus', 'fare-button--wanna-get-away']:
+            if html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "swa-g-screen-reader-only"}) is not None:
+                prices.append("$" + html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "swa-g-screen-reader-only"}).text)
+            else:
+                prices.append("Unavailable")
+
+        return prices
 
     def parse_seats_left(self, html):
         """
@@ -159,20 +157,15 @@ class Flight():
 
         Array Indicies: [Business Select, Anytime, Wanna Get Away Plus, Wanna Get Away]
         """
-        return [
-            0, 0, 0, 0
-        ]
-        # business_select_left = html.find_all("div")[8].find('div', {"data-test": "fare-button--business-select"}).find('span', {"class": "seats-left-indicator-text"}).text
-        # anytime_seats_left = html.find_all("div")[8].find('div', {"data-test": "fare-button--anytime"}).find('span', {"class": "seats-left-indicator-text"}).text
-        # wanna_get_away_plus_seats_left = html.find_all("div")[8].find('div', {"data-test": "fare-button--anytime"}).find('span', {"class": "seats-left-indicator-text"}).text
-        # wanna_get_away_seats_left = html.find_all("div")[8].find('div', {"data-test": "fare-button--anytime"}).find('span', {"class": "seats-left-indicator-text"}).text
+        seats_left = []
 
-        # return [
-        #     business_select_left,
-        #     anytime_seats_left,
-        #     wanna_get_away_plus_seats_left,
-        #     wanna_get_away_seats_left
-        # ]
+        for data_test in ['fare-button--business-select', 'fare-button--anytime', 'fare-button--wanna-get-away-plus', 'fare-button--wanna-get-away']:
+            if html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "seats-left-indicator-text"}) is not None:
+                seats_left.append("$" + html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "seats-left-indicator-text"}).text)
+            else:
+                seats_left.append("N/A")
+
+        return seats_left
     
     def __str__(self):
         """
@@ -193,7 +186,7 @@ class Flight():
         output += f"Prices:\n"
         for fare_type, price, seats_left in zip(["Business Select", "Anytime", "Wanna Get Away Plus", "Wanna Get Away"], self.prices, self.seats_left):
             output += (
-                f"\t{fare_type}: ${price} ({seats_left})\n"
+                f"\t{fare_type}: {price} ({seats_left})\n"
             )
         output += f"\n\n"
 
