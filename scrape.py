@@ -278,6 +278,7 @@ async def extract_html(url, debug):
 
     # Open a new page
     page = await browser.newPage()
+    await page.setViewport({ "width": 1366, "height": 768})
 
     # Add stealth plugin
     await stealth(page)
