@@ -255,7 +255,7 @@ def parse_html(flights, html):
     # Store the parsed flights
     flights.flights = parsed_flights
 
-async def extract_html(url):
+async def extract_html(url, debug):
     """
     Extract the HTML from the URL.
     """
@@ -265,12 +265,15 @@ async def extract_html(url):
 
     # Launch the Browser    
     browser = await launch(
-        headless=(not DEBUG),
+        headless=(not debug),
         args=[
             '--start-maximized',
             f'--user-agent={random_user_agent}',
             '--disable-extensions'
-        ]
+        ],
+        handleSIGINT=False,
+        handleSIGTERM=False,
+        handleSIGHUP=False
     )
 
     # Open a new page
@@ -314,7 +317,7 @@ def construct_url(event):
     url = f"https://www.southwest.com/air/booking/select-depart.html?adultPassengersCount={passenger_count}&adultsCount={adult_count}&departureDate={departure_date}&departureTimeOfDay=ALL_DAY&destinationAirportCode={destination}&fareType=USD&from={origination}&int=HOMEQBOMAIR&originationAirportCode={origination}&passengerType=ADULT&reset=true&returnDate=&returnTimeOfDay=ALL_DAY&to={destination}&tripType=oneway"
     return url
 
-def main(event, debug):
+async def main(event, debug):
     print(f"Debug Mode On: {debug}")
     # Initialize the flights object
     flights = Flights(
@@ -336,8 +339,8 @@ def main(event, debug):
         html = f.read()
         f.close()
     else:
-        html = asyncio.get_event_loop().run_until_complete(extract_html(url))
-    
+        html = await extract_html(url, debug)
+
     # Parse the HTML to extract the flight information
     parse_html(flights, html)
 
@@ -351,5 +354,5 @@ if __name__ == '__main__':
         "passenger_count": 1,
         "adult_count": 1
     }
-    flights = main(event, True)
+    flights = asyncio.run(main(event, False))
     print(flights)

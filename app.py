@@ -5,7 +5,7 @@ import logging
 import json
 
 # Set DEBUG Flag
-DEBUG = True
+DEBUG = False
 
 # Initial setup
 app = Flask(__name__)
@@ -15,7 +15,7 @@ CORS(app)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s: %(message)s')
 
 @app.route('/', methods=['POST'])
-def index():
+async def index():
     """
     Search for Flights.
     """
@@ -30,7 +30,7 @@ def index():
 
     # Search for the Flights
     app.logger.info(f'Searching for flights...')
-    flights = main(data, debug=DEBUG)
+    flights = await main(data, debug=DEBUG)
     app.logger.info(f'Flights:\n\n{flights}')
 
     return jsonify(
