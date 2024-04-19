@@ -98,8 +98,10 @@ class Flight():
     def parse_fastest(self, html):
         """
         Parse if the flight is label as fastest.
+
+        If the flight is label as fastest, it will have 3 spans, where the 3rd is the label.
         """
-        return html.find_all("div")[0].find_all("span")[2].text
+        return len(html.find_all("div")[0].find_all("span")) == 3
     
     def parse_number_of_stops(self, html):
         """
