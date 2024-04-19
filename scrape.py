@@ -62,10 +62,23 @@ class Flight():
     """
     A flight.
     """
-    def __init__(self, html):
+    def __init__(
+        self,
+        departure_date,
+        origination_airport,
+        destination_airport,
+        passenger_count,
+        adult_count,
+        html
+    ):
         """
         Initialize the fields of a filght.
         """
+        self.departure_date = departure_date
+        self.origination_airport = origination_airport
+        self.destination_airport = destination_airport
+        self.passenger_count = passenger_count
+        self.adult_count = adult_count
         self.flight_number = self.parse_flight_number(html)
         self.fastest = self.parse_fastest(html)
         self.number_of_stops = self.parse_number_of_stops(html)
@@ -86,15 +99,13 @@ class Flight():
         """
         Parse if the flight is label as fastest.
         """
-        return "TODO"
-        # return html.find_all("div")[0].find_all("span")[2].text
+        return html.find_all("div")[0].find_all("span")[2].text
     
     def parse_number_of_stops(self, html):
         """
         Parse the number of stops.
         """
-        return "TODO"
-        # return html.find_all("div")[5].text
+        return html.find_all("div")[5].text
     
     def parse_change_planes(self, html):
         """
@@ -197,11 +208,19 @@ def parse_html(flights, html):
     soup = BeautifulSoup(html, "html.parser")
 
     # Parse each flight in the HTML
-    flight_html_list = soup.find_all('ul', {"id": "air-search-results-matrix-0"})
-    for flight_html in flight_html_list[0]:
-        flight = Flight(flight_html)
+    flight_html_list = soup.find('ul', {"id": "air-search-results-matrix-0"}).find_all('li')
+    for flight_html in flight_html_list:
+        flight = Flight(
+            flights.departure_date,
+            flights.origination_airport,
+            flights.destination_airport,
+            flights.passenger_count,
+            flights.adult_count,
+            flight_html
+            )
         parsed_flights.append(flight)
 
+    # Store the parsed flights
     flights.flights = parsed_flights
 
 async def extract_html(url):
