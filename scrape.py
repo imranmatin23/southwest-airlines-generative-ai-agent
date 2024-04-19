@@ -111,7 +111,11 @@ class Flight():
         """
         Parse the number of stops.
         """
-        return html.find('div', {'class': 'select-detail--number-of-stops'}).find('div', {'class': 'flight-stops-badge select-detail--flight-stops-badge'}).text
+        text = html.find('div', {'class': 'select-detail--number-of-stops'}).find('div', {'class': 'flight-stops-badge select-detail--flight-stops-badge'}).text
+        if text == "Nonstop":
+            return "0"
+        text = text.replace(" stop", "")
+        return text
     
     def parse_change_planes(self, html):
         """
@@ -125,13 +129,17 @@ class Flight():
         """
         Parse the departure time.
         """
-        return html.find('div', {'data-test': "select-detail--origination-time"}).find('span', {"class": "time--value"}).text
+        text = html.find('div', {'data-test': "select-detail--origination-time"}).find('span', {"class": "time--value"}).text
+        text = text.replace("Departs ", "")
+        return text
 
     def parse_arrival_time(self, html):
         """
         Parse the arrival time.
         """
-        return html.find('div', {'data-test': "select-detail--destination-time"}).find('span', {"class": "time--value"}).text
+        text = html.find('div', {'data-test': "select-detail--destination-time"}).find('span', {"class": "time--value"}).text
+        text = text.replace("Arrives ", "")
+        return text
     
     def parse_duration(self, html):
         """
@@ -148,7 +156,9 @@ class Flight():
 
         for data_test in ['fare-button--business-select', 'fare-button--anytime', 'fare-button--wanna-get-away-plus', 'fare-button--wanna-get-away']:
             if html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "swa-g-screen-reader-only"}) is not None:
-                prices.append("$" + html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "swa-g-screen-reader-only"}).text)
+                text = html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "swa-g-screen-reader-only"}).text
+                text = text.replace(" Dollars", "")
+                prices.append("$" + text)
             else:
                 prices.append("Unavailable")
 
@@ -164,7 +174,7 @@ class Flight():
 
         for data_test in ['fare-button--business-select', 'fare-button--anytime', 'fare-button--wanna-get-away-plus', 'fare-button--wanna-get-away']:
             if html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "seats-left-indicator-text"}) is not None:
-                seats_left.append("$" + html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "seats-left-indicator-text"}).text)
+                seats_left.append(html.find('div', {'class': 'select-detail--fares'}).find('div', {"data-test": data_test}).find('span', {"class": "seats-left-indicator-text"}).text)
             else:
                 seats_left.append("N/A")
 
@@ -190,7 +200,7 @@ class Flight():
         output += f"Prices:\n"
         for fare_type, price, seats_left in zip(["Business Select", "Anytime", "Wanna Get Away Plus", "Wanna Get Away"], self.prices, self.seats_left):
             output += (
-                f"\t{fare_type}: {price} ({seats_left})\n"
+                f"  - {fare_type}: {price} ({seats_left})\n"
             )
         output += f"\n\n"
 
