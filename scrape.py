@@ -10,7 +10,6 @@ from pyppeteer_stealth import stealth
 from pyppeteer import launch
 from bs4 import BeautifulSoup
 from random_user_agent.user_agent import UserAgent
-from random_user_agent.params import SoftwareName, OperatingSystem
 
 class Flights():
     """
@@ -228,9 +227,7 @@ async def extract_html(url):
     Extract the HTML from the URL.
     """
     # Get Random User Agent String.
-    software_names = [SoftwareName.CHROME.value]
-    operating_systems = [OperatingSystem.MAC_OS_X.value, OperatingSystem.LINUX.value]       
-    user_agent_rotator = UserAgent(software_names=software_names, operating_systems=operating_systems, limit=100)
+    user_agent_rotator = UserAgent()
     random_user_agent = user_agent_rotator.get_random_user_agent()
 
     # Launch the Browser    
@@ -250,13 +247,15 @@ async def extract_html(url):
     await stealth(page)
 
     # Go to the URL
-    await page.goto(url)
+    await page.goto(url, { "waitUntil": 'networkidle2' })
 
     # Press the Search Button on the booking page
     if page.url != url:
-        await page.waitForSelector('button[id="form-mixin--submit-button"]')
-        link = await page.querySelector('button[id="form-mixin--submit-button"]')
-        await link.click()
+        print(f"Redirected to {page.url}...")
+        await page.waitForSelector('button[id="form-mixin--submit-button"]', {'visible': True})
+        button = await page.querySelector('button[id="form-mixin--submit-button"]')
+        await button.click()
+        await page.waitForNavigation()
 
     # Extract the HTML
     html = await page.content()
