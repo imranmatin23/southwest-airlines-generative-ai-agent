@@ -292,7 +292,7 @@ async def extract_html(url, debug):
         await page.waitForSelector('button[id="form-mixin--submit-button"]', {'visible': True})
         button = await page.querySelector('button[id="form-mixin--submit-button"]')
         await button.click()
-        await page.waitForNavigation()
+        await page.waitForNavigation({"timeout": 5000})
 
     # Extract the HTML
     html = await page.content()
