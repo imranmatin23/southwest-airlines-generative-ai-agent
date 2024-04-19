@@ -1,6 +1,6 @@
 # Southwest Airlines Generative AI Agent
 
-A Generative AI Agent that is able to obtain Southwest Airlines flight information. 
+A Generative AI Agent that is able to obtain Southwest Airlines flight information. This was built using [Erik-Debye@](https://github.com/Erik-Debye)'s [SWA-Scraper GitHub Repository](https://github.com/Erik-Debye/SWA-Scraper) as inspiration.
 
 ## Product Demo
 
@@ -50,3 +50,7 @@ curl -H 'Content-Type: application/json' \
 
 1. Integrate with Southwest's APIs rather than scraping their webpage.
 2. Allow the Agent to book flights on behalf of you.
+
+## WARNING & DISCLAIMER:
+
+DO NOT USE THE DATA YOUR SCRAPE FOR COMMERCIAL PURPOSES OR TO MAKE MONEY IN ANY WAY. THE DEVELOPER DOES NOT ATTAIN ANY RESPONSIBILTY FOR YOUR USE OF THE PROGRAM.
